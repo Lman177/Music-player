@@ -21,12 +21,13 @@ const playBtn = $(".btn-toggle-play");
 const progress = $("#progress");
 const prevBtn = $(".btn-prev");
 const nextBtn = $(".btn-next");
-const randomBtn = $(".btn-random");
-const repeatBtn = $(".btn-repeat");
+const randomBtn = $(".btn-random.active");
+const repeatBtn = $(".btn-repeat.active");
 const playlist = $(".playlist");
 const app = {
     currentIndex : 0,
     isPlaying : false,
+    
     songs: [
         {
             name: "Sống cho hết đời thanh xuân 1",
@@ -57,7 +58,7 @@ const app = {
             single: "Vũ",
             path: "Music/Anh nhớ ra rằng Vũ/y2mate.com - ANH NHỚ RA  Vũ Feat Trang  Official Audio.mp3",
             image: "Music/Anh nhớ ra rằng Vũ/maxresdefault (1).jpg"
-        }
+        },
     ],
     render: function(){
         const htmls = this.songs.map(song =>{
@@ -78,7 +79,7 @@ const app = {
         })
         playlist.innerHTML = htmls.join('')
     },
-
+    
     defineProperties: function () {
         Object.defineProperty(app, "currentSong", {
         get: function () {
@@ -93,6 +94,8 @@ const app = {
     },
     
     handleEvents: function(){
+        repeatBtn.classList.remove('active')
+        randomBtn.classList.remove('active')
     // Handle the cd size when scroll
         const _this = this;
         const cdWidth = cd.offsetWidth;
@@ -106,10 +109,10 @@ const app = {
         cdThumbAnimate.pause()
     // Xử lý phóng to/ thu nhỏ cd khi scroll
         document.onscroll = function(){
-            const scrollTop = window.scrollY;
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
             const newcdWidth = cdWidth - scrollTop;
             cd.style.width = newcdWidth > 0 ? newcdWidth + 'px' : 0;
-            cd.style.opacity = newcdWidth/cdWidth
+            cd.style.opacity = (newcdWidth / cdWidth) > 0 ? (newcdWidth / cdWidth) : 0;
         }
     //Handle play Btn
         playBtn.onclick = function(){
@@ -153,20 +156,89 @@ const app = {
         */
     // khi next song
         nextBtn.onclick = function(){
-            _this.nextSong()
+            if (randomBtn.classList.contains('active')){
+                _this.playRandomSong()
+            }else{
+                _this.nextSong()
+            }
+            
+            audio.play()
+        }
+    // khi an pre song
+        prevBtn.onclick = function(){
+            if (randomBtn.classList.contains('active')){
+                _this.playRandomSong()
+            }else{
+                _this.preSong()
+            }
+            audio.play()
+        }
+    // random button-------------Kien thuc kho--------------------
+        // randomBtn.onclick = function(){
+        //     _this.isRandom = !_this.isRandom
+        //     randomBtn.classList.toggle('active', _this.isRandom)
+        // }
+        
+        randomBtn.onclick = function() {
+            
+            if(randomBtn.classList.contains('active')){
+                randomBtn.classList.remove('active');
+            }
+            else{
+                randomBtn.classList.add('active');
+            }
+            
+        }
+    //-----------------------------------------------------
+        //khi audio end and move to next
+        
+        //repeat btn
+        
+        repeatBtn.onclick = function(){
+            
+            if(this.classList.contains('active')){
+                this.classList.remove('active')
+            } else{
+                this.classList.add('active')
+            }
+        }
+        audio.onended = function(){
+            if(repeatBtn.classList.contains('active')){
+                audio.play();
+            } else{
+                nextBtn.click();
+            }
+            
         }
     },
     //Next Song
     nextSong: function() {
-        
+        this.currentIndex++;
         if(this.currentIndex>= this.songs.length){
             this.currentIndex = 0;
-            this.currentIndex++;
         }
-        
         this.loadCurrentSong()
-        
     },
+    // previous song
+    preSong: function(){
+        this.currentIndex--;
+        if(this.currentIndex < 0){
+            this.currentIndex = this.songs.length - 1
+        }
+        this.loadCurrentSong()
+    },
+    //Play random song
+    playRandomSong: function(){
+        let newIndex;
+        do{
+            newIndex = Math.floor(Math.random() * this.songs.length)
+        } while (newIndex === this.currentIndex)
+
+        this.currentIndex = newIndex;
+        console.log(newIndex)
+        this.loadCurrentSong()
+    },
+    
 
     start: function(){
 
@@ -178,9 +250,6 @@ const app = {
 
         // Load current song to UI when start application
         this.loadCurrentSong();
-
-        //Next Song
-        this.nextSong();
 
         // Render playlist
         this.render();
