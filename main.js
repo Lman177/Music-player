@@ -59,11 +59,43 @@ const app = {
             path: "Music/Anh nhớ ra rằng Vũ/y2mate.com - ANH NHỚ RA  Vũ Feat Trang  Official Audio.mp3",
             image: "Music/Anh nhớ ra rằng Vũ/maxresdefault (1).jpg"
         },
+        {
+            name: "Sống cho hết đời thanh xuân 1",
+            single: "Dick-Xám-Tuyết",
+            path: "Music/SCHDTX1/SỐNG CHO HẾT ĐỜI THANH XUÂN 1.mp3",
+            image: "Music/SCHDTX1/SCHDTX1.jpg"
+        },
+        {
+            name: "Sống cho hết đời thanh xuân 2",
+            single: "BCTM",
+            path: "Music/SCHDTX2/SỐNG CHO HẾT ĐỜI THANH XUÂN 2  BCTM x TNS   Official Music Video .mp3",
+            image: "Music/SCHDTX2/maxresdefault.jpg"
+        },
+        {
+            name: "Sống cho hết đời thanh xuân 3",
+            single: "BCTM",
+            path: "Music/SCHDTX3/y2mate.com - SỐNG CHO HẾT ĐỜI THANH XUÂN 3  BCTM x TNS  Official Music Video  Prod HPro.mp3",
+            image: "Music/SCHDTX3/maxresdefault (1).jpg"
+        },
+        {
+            name: "Trước khi tuổi trẻ này đóng lối",
+            single: "Ngắn-Xám-Dick",
+            path: "Music/TRƯỚC KHI TUỔI TRẺ NÀY ĐÓNG LỐI/y2mate.com - TRƯỚC KHI TUỔI TRẺ NÀY ĐÓNG LỐI  Ngắn x Xám x Dick  Đà Lạt Ep3  Directed by Nguyễn Nhật Trung .mp3",
+            image: "Music/TRƯỚC KHI TUỔI TRẺ NÀY ĐÓNG LỐI/maxresdefault.jpg"
+        },
+        {
+            name: "Anh nhớ ra rằng",
+            single: "Vũ",
+            path: "Music/Anh nhớ ra rằng Vũ/y2mate.com - ANH NHỚ RA  Vũ Feat Trang  Official Audio.mp3",
+            image: "Music/Anh nhớ ra rằng Vũ/maxresdefault (1).jpg"
+        },
     ],
     render: function(){
-        const htmls = this.songs.map(song =>{
+        const htmls = this.songs.map((song, index) =>{
             return `
-                <div class="song">
+            <div class="song ${
+                index === this.currentIndex ? "active" : ""
+              }" data-index="${index}">
                     <div class="thumb"
                         style="background-image: url('${song.image}')">
                     </div>
@@ -76,15 +108,15 @@ const app = {
                     </div>
                 </div>
             `
-        })
+        });
         playlist.innerHTML = htmls.join('')
     },
-    
+
     defineProperties: function () {
         Object.defineProperty(app, "currentSong", {
         get: function () {
             return app.songs[app.currentIndex];
-        }
+            }
         });
     },
     loadCurrentSong: function() {
@@ -161,8 +193,9 @@ const app = {
             }else{
                 _this.nextSong()
             }
-            
             audio.play()
+            _this.render()
+            _this.scrolltoActiveSong()
         }
     // khi an pre song
         prevBtn.onclick = function(){
@@ -172,6 +205,8 @@ const app = {
                 _this.preSong()
             }
             audio.play()
+            audio.render()
+            _this.scrolltoActiveSong()
         }
     // random button-------------Kien thuc kho--------------------
         // randomBtn.onclick = function(){
@@ -210,6 +245,24 @@ const app = {
             }
             
         }
+        // handle click in playlist
+        playlist.onclick = function(e){
+            const songNode = e.target.closest('.song:not(.active)')
+            if(e.target.closest('.song:not(.active)') || e.target.closest('.option')){
+                // Xu ly click vao song
+                if(songNode){
+                    _this.currentIndex= Number(songNode.dataset.index)
+                    _this.loadCurrentSong()
+                    _this.render()
+                    audio.play()
+                }
+                if(e.target.closest('.option')){
+
+                }
+            }
+        }
+        
+
     },
     //Next Song
     nextSong: function() {
@@ -237,6 +290,14 @@ const app = {
         this.currentIndex = newIndex;
         console.log(newIndex)
         this.loadCurrentSong()
+    },
+    scrolltoActiveSong: function(){
+        setTimeout(() =>{
+            $('.song.active').scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest'
+            })
+        }, 300)
     },
     
 
