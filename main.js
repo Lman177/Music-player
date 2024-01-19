@@ -27,7 +27,6 @@ const playlist = $(".playlist");
 const app = {
     currentIndex : 0,
     isPlaying : false,
-    
     songs: [
         {
             name: "Sống cho hết đời thanh xuân 1",
@@ -144,7 +143,7 @@ const app = {
             const scrollTop = window.scrollY || document.documentElement.scrollTop;
             const newcdWidth = cdWidth - scrollTop;
             cd.style.width = newcdWidth > 0 ? newcdWidth + 'px' : 0;
-            cd.style.opacity = (newcdWidth / cdWidth) > 0 ? (newcdWidth / cdWidth) : 0;
+            cd.style.opacity = newcdWidth / cdWidth;
         }
     //Handle play Btn
         playBtn.onclick = function(){
